@@ -1,0 +1,9 @@
+FROM golang:1.17.5
+
+ENV APP_HOME=/app
+
+WORKDIR $APP_HOME
+
+RUN mkdir -p $APP_HOME
+
+COPY . $APP_HOME/
