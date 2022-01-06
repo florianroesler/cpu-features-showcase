@@ -6,8 +6,20 @@ import (
 )
 
 func main() {
-	var iterations = 1500000000
+	var iterations = 1_000_000_000
 
+	var fastBenchmarkTime = runStableConditional(iterations)
+	fmt.Println(fastBenchmarkTime)
+
+	var slowBenchmarkTime = runOscillatingConditional(iterations)
+	fmt.Println(slowBenchmarkTime)
+
+	fmt.Println("Speedup: ")
+	var speedup = float64(fastBenchmarkTime.Nanoseconds()) / float64(slowBenchmarkTime.Nanoseconds())
+	fmt.Printf("%.2fx\n", 1.0/(speedup))
+}
+
+func runStableConditional(iterations int) time.Duration {
 	var start = time.Now()
 	var sum = 0
 	for i := 0; i < iterations; i++ {
@@ -15,26 +27,24 @@ func main() {
 			sum++
 		}
 	}
-	var elapsedFast = time.Since(start)
 
 	fmt.Println("128T 128F: ")
 	fmt.Println(sum)
-	fmt.Println(elapsedFast)
 
-	start = time.Now()
-	sum = 0
+	return time.Since(start)
+}
+
+func runOscillatingConditional(iterations int) time.Duration {
+	var start = time.Now()
+	var sum = 0
 	for i := 0; i < iterations; i++ {
-		if i&2 == 0 {
+		if i&1 == 0 {
 			sum++
 		}
 	}
-	var elapsedSlow = time.Since(start)
 
 	fmt.Println("1T 1F: ")
 	fmt.Println(sum)
-	fmt.Println(elapsedSlow)
 
-	fmt.Println("Speedup: ")
-	var speedup = float64(elapsedFast.Nanoseconds()) / float64(elapsedSlow.Nanoseconds())
-	fmt.Printf("%.2fx\n", 1.0/(speedup))
+	return time.Since(start)
 }
